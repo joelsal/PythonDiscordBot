@@ -16,18 +16,14 @@ async def on_ready():
 @client.command(pass_context=True, brief='Makes the bot join the same voice channel where the user is.')
 async def join(ctx):    #Bot joins voice channel
 
-    try:
-        channel = ctx.message.author.voice.channel
-        voice = get(client.voice_clients, guild=ctx.guild)
-        if voice and voice.is_connected():
-            await voice.move_to(channel)
-        else:
-            voice = await channel.connect()
-            print(f"Bot has connected to {channel}\n")
-            await ctx.send(f"Bot joined {channel}")
-    except:
-        await ctx.send(f"No users in any of the voice channels!")
-        return
+    channel = ctx.message.author.voice.channel
+    voice = get(client.voice_clients, guild=ctx.guild)
+    if voice and voice.is_connected():
+        await voice.move_to(channel)
+    else:
+        voice = await channel.connect()
+        print(f"Bot has connected to {channel}\n")
+        await ctx.send(f"Bot joined {channel}")
 
 @client.command(pass_context=True, brief='Makes the bot leave the voice channel.')
 async def leave(ctx):   #Bot leaves voice channel
