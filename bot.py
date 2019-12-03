@@ -15,7 +15,6 @@ async def on_ready():
 
 @client.command(pass_context=True, brief='Makes the bot join the same voice channel where the user is.')
 async def join(ctx):    #Bot joins voice channel
-
     channel = ctx.message.author.voice.channel
     voice = get(client.voice_clients, guild=ctx.guild)
     if voice and voice.is_connected():
