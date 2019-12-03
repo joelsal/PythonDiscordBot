@@ -13,19 +13,23 @@ client = commands.Bot(command_prefix = prefix)
 async def on_ready():
     print('BOT IS ONLINE')
 
-@client.command(pass_context=True, brief='Makes the bot join the same voice channel where the user is')
+@client.command(pass_context=True, brief='Makes the bot join the same voice channel where the user is.')
 async def join(ctx):    #Bot joins voice channel
-    channel = ctx.message.author.voice.channel
-    voice = get(client.voice_clients, guild=ctx.guild)
 
-    if voice and voice.is_connected():
-        await voice.move_to(channel)
-    else:
-        voice = await channel.connect()
-        print(f"Bot has connected to {channel}\n")
-        await ctx.send(f"Bot joined {channel}")
+    try:
+        channel = ctx.message.author.voice.channel
+        voice = get(client.voice_clients, guild=ctx.guild)
+        if voice and voice.is_connected():
+            await voice.move_to(channel)
+        else:
+            voice = await channel.connect()
+            print(f"Bot has connected to {channel}\n")
+            await ctx.send(f"Bot joined {channel}")
+    except:
+        await ctx.send(f"No users in any of the voice channels!")
+        return
 
-@client.command(pass_context=True, brief='Makes the bot leave the voice channel')
+@client.command(pass_context=True, brief='Makes the bot leave the voice channel.')
 async def leave(ctx):   #Bot leaves voice channel
     channel = ctx.message.author.voice.channel
     voice = get(client.voice_clients, guild=ctx.guild)
@@ -38,17 +42,21 @@ async def leave(ctx):   #Bot leaves voice channel
         print("Bot was told to leave voice channel, but was not in one")
         await ctx.send("Don't think I am in a voice channel!")
 
-@client.command(pass_context=True, brief='Plays the sound of any YouTube video.', description='Will automatically make the bot join on the same voice channel as the user if it has not joined already.')
+@client.command(pass_context=True, brief='Plays the sound of any YouTube video.', description='Will automatically make the bot join on the same voice channel as the user if it has not joined already, then plays the sound of the YouTube-url on the same voice channel where the user is.')
 async def play(ctx, url: str):   #Bot plays song
-    channel = ctx.message.author.voice.channel
-    voice = get(client.voice_clients, guild=ctx.guild)
 
-    if voice and voice.is_connected():
-        await voice.move_to(channel)
-    else:
-        voice = await channel.connect()
-        print(f"Bot has connected to {channel}\n")
-        await ctx.send(f"Bot joined {channel}")
+    try:
+        channel = ctx.message.author.voice.channel
+        voice = get(client.voice_clients, guild=ctx.guild)
+        if voice and voice.is_connected():
+            await voice.move_to(channel)
+        else:
+            voice = await channel.connect()
+            print(f"Bot has connected to {channel}\n")
+            await ctx.send(f"Bot joined {channel}")
+    except:
+        await ctx.send(f"No users in any of the voice channels!")
+        return
 
     def check_queue():
         Queue_infile = os.path.isdir("./Queue")
@@ -139,7 +147,7 @@ async def play(ctx, url: str):   #Bot plays song
     await ctx.send(f"Playing: {newname[0]}")
     print("Playing")
 
-@client.command(pass_context=True, brief='Pauses the current song.')
+@client.command(pass_context=True, brief='Pauses the current song.', description='Pauses the song at the moment the command was entered. The song can be resumed back from the same moment by typing !resume.')
 async def pause(ctx):
     voice = get(client.voice_clients, guild=ctx.guild)
     if voice and voice.is_playing():
@@ -150,7 +158,7 @@ async def pause(ctx):
         print("Music failed to pause")
         await ctx.send("Music not playing, could not pause")
 
-@client.command(pass_context=True, brief='Resumes the current song.')
+@client.command(pass_context=True, brief='Resumes the current song.', description='Used to resume a paused song. Type !pause to pause the currently playing song and then use !resume to resume it back to playing from where it was puased.')
 async def resume(ctx):
     voice = get(client.voice_clients, guild=ctx.guild)
     if voice and voice.is_paused():
@@ -161,26 +169,30 @@ async def resume(ctx):
         print("Music could not be resumed")
         await ctx.send("Music not on pause, could not resume")
 
-@client.command(pass_context=True, brief='Skips the current song, automatically plays the next queued song afterwards.')
+@client.command(pass_context=True, brief='Skips the current song.', description='Skips the currently playing song and automatically plays the next queued song if there are any. Also lets the user know how many songs there are queued at the moment.')
 async def skip(ctx):
     voice = get(client.voice_clients, guild=ctx.guild)
 
     queues.clear()
 
-    if voice and voice.is_playing():
-        DIR = os.path.abspath(os.path.realpath("Queue"))
-        length = len(os.listdir(DIR))
-        still_queue = length - 1
-        print("Music stopped")
+    try:
+        if voice and voice.is_playing():
+            DIR = os.path.abspath(os.path.realpath("Queue"))
+            length = len(os.listdir(DIR))
+            still_queue = length - 1
+            print("Music stopped")
+            voice.stop()
+            await ctx.send(f"Music skipped, {still_queue} song(s) left in the queue!")
+        else:
+            print("Music failed to skip")
+            await ctx.send("Music not playing, could not skip")
+    except:
         voice.stop()
-        await ctx.send(f"Music skipped, {still_queue} song(s) left in the queue")
-    else:
-        print("Music failed to skip")
-        await ctx.send("Music not playing, could not skip")
+        await ctx.send(f"Music skipped, 0 song(s) left in the queue!")
 
 queues = {}
 
-@client.command(pass_context=True, brief='Queues more songs to be played after the current song.')
+@client.command(pass_context=True, brief='Queues songs to be played later.', description='Used to put songs onto a queue which will play automatically later, when the current song has ended.')
 async def queue(ctx, url: str):
     Queue_infile = os.path.isdir("./Queue")
     if Queue_infile is False:
@@ -211,11 +223,11 @@ async def queue(ctx, url: str):
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         print("Downloading song...\n")
         ydl.download([url])
-    await ctx.send("Adding the song onto a queue...")
+    await ctx.send("Song added into a queue!")
     
     print("Song added to queue\n")
 
-@client.command(pass_context=True)
+@client.command(pass_context=True, brief='Used to check the size of the of the song queue.')
 async def size(ctx):
     try:
         DIR = os.path.abspath(os.path.realpath("Queue"))
