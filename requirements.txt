@@ -1,5 +1,4 @@
-discord.py==1.2.5
-discord.py[voice]~= 0.16.0
-discord==1.0.1
+pynacl==1.2.1
+discord.py[voice]~= 1.2.5
 pip
-youtube_dl==2019.11.22
+youtube_dl
