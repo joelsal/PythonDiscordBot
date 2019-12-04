@@ -7,7 +7,7 @@ Features:
 - Songs can be added into a queue which will automatically play later
 - Songs can be paused and then resumed
 - Songs can be skipped
-- Other minority quality-of-life features
+- Other minor quality-of-life features
 
 Additional info:
-Aptfile, Procfile, requirements.txt and runtime.txt were needed for Heroku
+Aptfile, Procfile, requirements.txt and runtime.txt were needed for Heroku.
